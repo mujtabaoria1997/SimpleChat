@@ -41,5 +41,5 @@ A full-stack, real-time chat application built as a **sample project** to showca
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/simple-chat.git
+git clone https://github.com/mujtabaoria1997/SimpleChat.git
 cd simple-chat
