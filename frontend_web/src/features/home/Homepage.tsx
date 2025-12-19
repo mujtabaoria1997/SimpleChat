@@ -1,11 +1,10 @@
-import React from 'react'
+import React from "react";
+import { useAuth } from "../users/hooks/useAuth";
 
 const Homepage = () => {
-  return (
-    <div>
-      
-    </div>
-  )
-}
+  useAuth();
+  
+  return <div>ABC</div>;
+};
 
-export default Homepage
+export default Homepage;

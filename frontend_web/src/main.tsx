@@ -8,6 +8,7 @@ import AppConfigProvider from "./config/AppConfigProvider.tsx";
 import { App as AntDApp } from "antd";
 import { RouterProvider } from "react-router-dom";
 import { router } from "./core/router/Router.tsx";
+import "./core/styles/index.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

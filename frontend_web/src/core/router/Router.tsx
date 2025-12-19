@@ -8,10 +8,14 @@ interface RouteType {
 }
 
 const mainRoutes: RouteType[] = [
-    {
-      path: "/",
-      import: lazy(() => import("../../features/home/Homepage.tsx")),
-    },
+  {
+    path: "/login",
+    import: lazy(() => import("../../features/users/LoginPage.tsx")),
+  },
+  {
+    path: "/",
+    import: lazy(() => import("../../features/home/Homepage.tsx")),
+  },
 ];
 
 export const router = createBrowserRouter(
