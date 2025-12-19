@@ -10,7 +10,7 @@ const PORT = 5000;
 
 app.use(express.json());
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "http://localhost:9200" } });
+export const io = new Server(server, { cors: { origin: "http://localhost:9200" } });
 
 // Use cors
 app.use(
@@ -24,6 +24,8 @@ app.use("/", router);
 // Setup WebSocket
 setupSocket(io);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Server is running on port ${PORT}`);
+// });
+
+server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -5,3 +5,11 @@ export interface RoomModel {
   name: string;
   users: User[];
 }
+
+export interface MessageModel {
+  id: string;
+  roomId: string;
+  sender: User;
+  content: string;
+  timestamp: string;
+}

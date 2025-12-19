@@ -1,6 +1,8 @@
 import { rooms } from "../../../core/store/rooms.ts";
+import { io } from "../../../index.ts";
 import type { User } from "../../users/models/userModel.ts";
 import type { RoomModel } from "../models/roomModel.ts";
+import { onlineUsers } from "../services/socketService.ts";
 
 // Get All Rooms
 export function getAllRooms(req: any, res: any) {
@@ -9,7 +11,11 @@ export function getAllRooms(req: any, res: any) {
 
 // Create a new room
 export function createRoom(req: any, res: any) {
-  const { id, name } = req.body as { id: string; name: string };
+  const { id, name, user } = req.body as {
+    id: string;
+    name: string;
+    user: User;
+  };
 
   if (!id || !name) {
     return res.status(400).send({ error: "Room id and name are required" });
@@ -23,11 +29,12 @@ export function createRoom(req: any, res: any) {
   const newRoom: RoomModel = {
     id,
     name,
-    users: [],
+    users: [user],
   };
 
   rooms.push(newRoom);
   res.send(newRoom);
+  console.log(rooms);
 }
 
 // Join a room
@@ -38,20 +45,28 @@ export function joinRoom(req: any, res: any) {
     return res.status(400).send({ error: "Room id and user are required" });
   }
 
-  const room = rooms.find(r => r.id === roomId);
+  const room = rooms.find((r) => r.id === roomId);
   if (!room) {
     return res.status(404).send({ error: "Room not found" });
   }
 
-  // Add user if not already in room
-  if (!room.users.find(u => u.id === user.id)) {
+  if (!room.users.find((u) => u.id === user.id)) {
     room.users.push(user);
   }
+
+  room.users.forEach((u) => {
+    const socketId = onlineUsers.get(u.id);
+    if (socketId) {
+      io.to(socketId).emit("updateUsers", {
+        room,
+      });
+    }
+  });
 
   res.send({ message: `${user.username} joined room ${room.name}`, room });
 }
 
-// Leave a room
+// Leave Room
 export function leaveRoom(req: any, res: any) {
   const { roomId, userId } = req.body as { roomId: string; userId: string };
 
@@ -59,16 +74,15 @@ export function leaveRoom(req: any, res: any) {
     return res.status(400).send({ error: "Room id and userId are required" });
   }
 
-  const room = rooms.find(r => r.id === roomId);
+  const room = rooms.find((r) => r.id === roomId);
   if (!room) {
     return res.status(404).send({ error: "Room not found" });
   }
 
-  room.users = room.users.filter(u => u.id !== userId);
+  room.users = room.users.filter((u) => u.id !== userId);
 
-  // Optional: delete room if empty
   if (room.users.length === 0) {
-    const index = rooms.findIndex(r => r.id === roomId);
+    const index = rooms.findIndex((r) => r.id === roomId);
     rooms.splice(index, 1);
   }
 

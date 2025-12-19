@@ -14,7 +14,7 @@ const mainRoutes: RouteType[] = [
   },
   {
     path: "/",
-    import: lazy(() => import("../../features/home/Homepage.tsx")),
+    import: lazy(() => import("../../features/rooms/CurrentRoom.tsx")),
   },
 ];
 

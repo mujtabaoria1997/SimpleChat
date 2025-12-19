@@ -1,17 +1,17 @@
 import { Layout, Spin } from "antd";
 import { Suspense } from "react";
 import useTheme from "../hooks/useTheme";
-import { useWindowSize } from "react-use";
 import AppHeader from "./AppHeader";
 import Sidebar from "./Sidebar";
 import { useLocation } from "react-router-dom";
+import JoinRoomDialog from "../../features/rooms/components/JoinRoomDialog";
 
 const { Content } = Layout;
 
 const MainLayout = ({ children }: { children: any }) => {
   const { colorBgContainer, borderRadiusLG } = useTheme();
-  const { height } = useWindowSize();
   const location = useLocation();
+
   const isLogin = location.pathname === "/login";
 
   // Main Content
@@ -23,6 +23,7 @@ const MainLayout = ({ children }: { children: any }) => {
           background: colorBgContainer,
           borderRadius: borderRadiusLG,
           padding: "10px",
+          marginLeft: "2px"
         }}
       >
         {children}
@@ -34,8 +35,10 @@ const MainLayout = ({ children }: { children: any }) => {
   const layout = (
     <Layout
       style={{
-        minHeight: height,
+        display: "flex",
+        flexDirection: "column",
         padding: 5,
+        height: "100vh",
       }}
     >
       {/* App Header */}
@@ -47,6 +50,8 @@ const MainLayout = ({ children }: { children: any }) => {
 
         {/* Main Layout */}
         {content}
+
+        <JoinRoomDialog />
       </Layout>
     </Layout>
   );

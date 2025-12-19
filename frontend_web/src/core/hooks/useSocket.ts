@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { io, type Socket } from "socket.io-client";
-import type { User } from "../../users/models/userModel";
+import { SOCKET_URL } from "../services/coreApi";
+import type { User } from "../../features/users/models/userModel";
+import { useDispatch } from "react-redux";
+import { updateRoom } from "../store/slices/roomSlice";
+import type { RoomModel } from "../../features/rooms/models/roomModel";
 
-const SOCKET_URL = "http://localhost:5000";
-
-export const useSocket = (user: User | null) => {
+export const useSocket = (user: User) => {
   const socketRef = useRef<Socket | null>(null);
   const [connected, setConnected] = useState(false);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (!user) return;
@@ -28,6 +31,12 @@ export const useSocket = (user: User | null) => {
         setConnected(false);
       });
 
+      // Listen for user list updates per room
+      socket.on("updateUsers", ({ room }: { room: RoomModel }) => {
+        console.log(room);
+        dispatch(updateRoom(room));
+      });
+
       socketRef.current = socket;
     }
 
@@ -37,18 +46,28 @@ export const useSocket = (user: User | null) => {
     };
   }, [user]);
 
-  const sendMessage = useCallback((roomId: string, message: string) => {
-    if (socketRef.current && user) {
-      socketRef.current.emit("sendMessage", {
-        roomId,
-        message,
-        senderId: user.id,
-      });
-    }
-  }, [user]);
+  const sendMessage = useCallback(
+    (roomId: string, message: string) => {
+      if (socketRef.current && user) {
+        socketRef.current.emit("sendMessage", {
+          roomId,
+          message,
+          senderId: user.id,
+        });
+      }
+    },
+    [user]
+  );
 
   const onMessage = useCallback(
-    (callback: (msg: { roomId: string; message: string; senderId: string; timestamp: string }) => void) => {
+    (
+      callback: (msg: {
+        roomId: string;
+        message: string;
+        senderId: string;
+        timestamp: string;
+      }) => void
+    ) => {
       socketRef.current?.on("newMessage", callback);
     },
     []

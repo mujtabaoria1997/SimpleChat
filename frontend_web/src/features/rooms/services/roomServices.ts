@@ -10,8 +10,9 @@ export const roomService = {
   },
 
   // Create a new room
-  createRoom: async (id: string, name: string): Promise<RoomModel> => {
-    const response = await api.post("/api/rooms/create", { id, name });
+  createRoom: async (id: string, name: string, user: User): Promise<RoomModel> => {
+    console.log(id);
+    const response = await api.post("/api/rooms/create", { id, name, user });
     return response.data;
   },
 

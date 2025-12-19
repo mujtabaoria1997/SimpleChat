@@ -1,65 +1,47 @@
 import { Grid, Layout, Menu, type MenuProps } from "antd";
 import MenuItem from "antd/es/menu/MenuItem";
-import { useLocation, NavLink } from "react-router-dom";
 import useTheme from "../hooks/useTheme";
-import { useWindowSize } from "react-use";
 import { MessageOutlined } from "@ant-design/icons";
+import { useRooms } from "../../features/rooms/hooks/useRooms";
 
 type MenuItem = Required<MenuProps>["items"][number];
 const { Sider } = Layout;
 const { useBreakpoint } = Grid;
 
-interface ItemProp {
-  link?: string;
-  icon?: any;
-  label: string;
-}
-
-// Main / Dashboard Items
-const chatMenuItems: ItemProp[] = [
-  {
-    link: "/rooms/123",
-    label: "My Rooms",
-  },
-  {
-    link: "/rooms/124",
-    label: "My Chats",
-  },
-];
-
-const getMenu = (
-  label: React.ReactNode,
-  link: string,
-  icon?: React.ReactNode,
-  children?: MenuItem[]
-): MenuItem => ({
-  key: link,
-  icon,
-  children,
-  label: <NavLink to={link} children={label} />,
-});
-
 const Sidebar = () => {
-  const { colorBgLayout, borderRadiusLG, sidebarCollapsed, setSidebarFn } =
-    useTheme();
-  const location = useLocation();
+  const {
+    colorBgLayout,
+    borderRadiusLG,
+    sidebarCollapsed,
+    token,
+    setSidebarFn,
+  } = useTheme();
+  const { rooms, selectRoom, toggleJoinFn, selectedRoom } = useRooms();
 
   const screens = useBreakpoint();
   const isMobile = !screens.sm;
 
-  // Main / Dashboard Menus
-  const chatMenus = chatMenuItems.map((item) => {
-    return getMenu(item.label, item.link!);
-  });
-
   // Rooms
-  const room = [];
+  const room: MenuItem[] = rooms.map((r) => {
+    // Main Room Menu
+    const roomMenu: MenuItem = {
+      key: r.id,
+      label: r.name,
+      onClick: () => selectRoom(r.id),
+      style: {
+        borderBottom: `1px solid ${token.colorBorder}`,
+        padding: "8px 16px",
+      },
+    };
+
+    return roomMenu;
+  });
 
   // Main Menu
   const mainMenu = (
     <Menu
       mode="inline"
-      selectedKeys={[location.pathname]}
+      selectedKeys={[selectedRoom?.id ?? ""]}
       style={{
         borderRadius: borderRadiusLG,
         height: "100%",
@@ -68,13 +50,14 @@ const Sidebar = () => {
         {
           key: "add_chat",
           label: "Public Room",
-          icon: <MessageOutlined />
+          icon: <MessageOutlined />,
+          onClick: () => toggleJoinFn(),
         },
         {
           key: "add_chat_divider",
           type: "divider",
         },
-        ...chatMenus,
+        ...room,
       ]}
     />
   );
@@ -89,7 +72,6 @@ const Sidebar = () => {
       width={200}
       style={{
         background: colorBgLayout,
-        paddingBottom: "4px",
         position: isMobile ? "fixed" : undefined,
         zIndex: isMobile ? 1000 : undefined,
       }}
